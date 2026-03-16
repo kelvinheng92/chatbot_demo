@@ -16,15 +16,15 @@ const COMPLEX_QUERIES = [
   "Should I open an SRS account?",    // investment_options
 ];
 
-// EC1: Maps to a simple intent → Hybrid returns safe template (no hallucination)
-//       Full GenAI LLM invents OCBC-specific product details not in the knowledge base
+// EC1: Maps to simple intent → Hybrid returns safe template (no hallucination possible)
+//       Full GenAI LLM invents a specific OCBC bonus rate that doesn't exist
 const EDGE_QUERIES_1 = [
-  "Does OCBC offer a special CPF top-up bonus for retirement savers?",
+  "What bonus interest rate does OCBC give on CPF savings for Premier Banking customers?",
 ];
 
-// EC2: Maps to a complex intent → Hybrid also calls LLM → both models fabricate specific stats/products
+// EC2: Maps to complex intent → Hybrid also calls LLM → both fabricate specific fund performance figures
 const EDGE_QUERIES_2 = [
-  "What annual return has OCBC RoboInvest delivered for retirement portfolios since launch?",
+  "How did OCBC's retirement unit trusts perform versus CPF Life returns over the past 3 years?",
 ];
 
 const initialState = (): ChatState => ({ messages: [], isLoading: false });

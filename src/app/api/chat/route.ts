@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { getEmbeddingResponse, classifyWithEmbedding } from "@/lib/embedding-engine";
 import { OUT_OF_SCOPE_INTENT } from "@/lib/intents";
-import { RAG_SYSTEM_PROMPT } from "@/lib/knowledge-base";
+import { RAG_SYSTEM_PROMPT, RAG_SYSTEM_PROMPT_GENAI } from "@/lib/knowledge-base";
 import type { ChatRequest, ChatResponse } from "@/types";
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
@@ -131,8 +131,8 @@ function getRAGStreamingResponse(
   ];
 
   const systemPrompt = intentName
-    ? `${RAG_SYSTEM_PROMPT}\n\nThe user's question relates to: ${intentName}. Focus your response on this topic.`
-    : RAG_SYSTEM_PROMPT;
+    ? `${RAG_SYSTEM_PROMPT_GENAI}\n\nThe user's question relates to: ${intentName}. Focus your response on this topic.`
+    : RAG_SYSTEM_PROMPT_GENAI;
 
   const stream = anthropic.messages.stream({
     model: "claude-haiku-4-5",
