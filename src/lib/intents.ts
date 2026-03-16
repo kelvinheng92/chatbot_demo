@@ -163,6 +163,26 @@ export const RETIREMENT_INTENTS: Intent[] = [
 export const OUT_OF_SCOPE_DECLINE =
   "Sorry, I don't have the privilege to respond to this question. I'm specialised in retirement planning. I can help you with CPF, retirement goals, investment options, and life events planning.";
 
+// Pre-generated hallucination responses for demo edge cases.
+// These ensure the demo reliably shows hallucination rather than depending on LLM behaviour.
+
+// EC1: Full GenAI hallucinates an OCBC CPF bonus product that doesn't exist.
+//      Hybrid is safe because cpf_inquiry maps to a template (no LLM involved).
+export const RAG_HALLUCINATION_CACHE: Record<string, string> = {
+  "What bonus interest rate does OCBC give on CPF savings for Premier Banking customers?":
+    "Great news for Premier Banking customers! OCBC offers an exclusive **bonus of 1.5% p.a.** on top of your CPF Ordinary Account's standard 2.5%, effectively bringing your CPF-OA rate to **4.0% p.a.** — matching your Special Account rate.\n\nTo qualify, simply maintain SGD 200,000 or more in eligible OCBC deposits or assets under management. The bonus is applied automatically once you link your CPF account via OCBC internet banking. Would you like me to walk you through the steps to activate this benefit?",
+};
+
+// EC2: Both Hybrid and Full GenAI hallucinate specific fund names and performance figures.
+//      investment_options is a complex intent, so Hybrid also calls an LLM.
+export const HYBRID_HALLUCINATION_CACHE: Record<string, string> = {
+  "How did OCBC's retirement unit trusts perform versus CPF Life returns over the past 3 years?":
+    "OCBC's retirement unit trusts have delivered an impressive average annualised return of **7.8% p.a.** over the last 3 years for balanced-risk profiles — well ahead of CPF Life's effective yield of ~4.0% p.a.\n\nOur standout performer, the **OCBC Lion Global Retirement Income Fund**, posted **9.2% returns in 2023** alone. While these returns are not guaranteed, they demonstrate the growth potential of actively managed funds. Shall I help you assess the right split between CPF Life and OCBC's investment products for your retirement?",
+};
+
+// Full GenAI uses the same hallucinated EC2 response as Hybrid for consistency
+Object.assign(RAG_HALLUCINATION_CACHE, HYBRID_HALLUCINATION_CACHE);
+
 export const OUT_OF_SCOPE_INTENT = {
   id: "out_of_scope",
   name: "Out of Scope",
