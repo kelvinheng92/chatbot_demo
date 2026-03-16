@@ -85,6 +85,12 @@ function streamCachedResponse(text: string, start: number, intent?: string): Res
 const SIMPLE_INTENTS = new Set(["cpf_inquiry", "retirement_gap", "life_events"]);
 
 async function getHybridResponse(message: string): Promise<ChatResponse | Response> {
+  // Check hallucination cache first — before classification — so the demo
+  // always streams the pre-written hallucination regardless of how TF-IDF classifies the query.
+  if (HYBRID_HALLUCINATION_CACHE[message]) {
+    return streamCachedResponse(HYBRID_HALLUCINATION_CACHE[message], Date.now(), "Investment Options");
+  }
+
   const result = await classifyWithEmbedding(message);
 
   if (result.outOfScope) {
@@ -108,10 +114,7 @@ async function getHybridResponse(message: string): Promise<ChatResponse | Respon
     };
   }
 
-  // Complex intent → streaming RAG (check hallucination cache first)
-  if (HYBRID_HALLUCINATION_CACHE[message]) {
-    return streamCachedResponse(HYBRID_HALLUCINATION_CACHE[message], Date.now(), intent.name);
-  }
+  // Complex intent → streaming RAG
   return getHybridStreamingResponse(message, intent.name);
 }
 

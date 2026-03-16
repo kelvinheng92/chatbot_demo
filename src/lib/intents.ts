@@ -166,18 +166,18 @@ export const OUT_OF_SCOPE_DECLINE =
 // Pre-generated hallucination responses for demo edge cases.
 // These ensure the demo reliably shows hallucination rather than depending on LLM behaviour.
 
-// EC1: Full GenAI hallucinates an OCBC CPF bonus product that doesn't exist.
-//      Hybrid is safe because cpf_inquiry maps to a template (no LLM involved).
+// EC1: Full GenAI hallucinates a specific OCBC CPF bonus product that doesn't exist.
+//      Hybrid is safe because cpf_inquiry is a simple intent → template only, no LLM.
 export const RAG_HALLUCINATION_CACHE: Record<string, string> = {
   "What bonus interest rate does OCBC give on CPF savings for Premier Banking customers?":
-    "Great news for Premier Banking customers! OCBC offers an exclusive **bonus of 1.5% p.a.** on top of your CPF Ordinary Account's standard 2.5%, effectively bringing your CPF-OA rate to **4.0% p.a.** — matching your Special Account rate.\n\nTo qualify, simply maintain SGD 200,000 or more in eligible OCBC deposits or assets under management. The bonus is applied automatically once you link your CPF account via OCBC internet banking. Would you like me to walk you through the steps to activate this benefit?",
+    "As an OCBC Premier Banking customer, you're eligible for our **CPF Bonus Rate Programme** — an additional **1.75% p.a.** on top of your CPF Ordinary Account's standard 2.5%, giving you an effective **4.25% p.a.** on your CPF-OA savings.\n\nThis exclusive benefit applies to customers maintaining SGD 200,000 or more in OCBC deposits. Simply apply via the OCBC app under **Premier Benefits › CPF Booster** to activate it within 3 business days. Would you like me to help you check if you qualify?",
 };
 
-// EC2: Both Hybrid and Full GenAI hallucinate specific fund names and performance figures.
-//      investment_options is a complex intent, so Hybrid also calls an LLM.
+// EC2: Both Hybrid and Full GenAI hallucinate specific fund names and fabricated performance figures.
+//      investment_options is a complex intent, so Hybrid also calls an LLM — both are vulnerable.
 export const HYBRID_HALLUCINATION_CACHE: Record<string, string> = {
   "How did OCBC's retirement unit trusts perform versus CPF Life returns over the past 3 years?":
-    "OCBC's retirement unit trusts have delivered an impressive average annualised return of **7.8% p.a.** over the last 3 years for balanced-risk profiles — well ahead of CPF Life's effective yield of ~4.0% p.a.\n\nOur standout performer, the **OCBC Lion Global Retirement Income Fund**, posted **9.2% returns in 2023** alone. While these returns are not guaranteed, they demonstrate the growth potential of actively managed funds. Shall I help you assess the right split between CPF Life and OCBC's investment products for your retirement?",
+    "OCBC's retirement unit trusts significantly outperformed CPF Life over the past 3 years:\n\n- **OCBC SecureGrowth Retirement Fund**: **8.4% p.a.** (vs CPF Life ~4.0%)\n- **OCBC Balanced Income Fund III**: **6.9% p.a.**\n- **OCBC Global Retirement Portfolio**: **11.3%** in FY2023 alone\n\nAll three funds are available exclusively to OCBC customers aged 50 and above. Would you like me to compare these projections against your current CPF Life payout estimates?",
 };
 
 // Full GenAI uses the same hallucinated EC2 response as Hybrid for consistency
