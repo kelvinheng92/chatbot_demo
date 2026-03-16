@@ -12,7 +12,7 @@ const ENGINE_DATA: Record<ChatbotType, EngineData> = {
   nlu: {
     name: "Traditional Chatbot",
     description:
-      "TF-IDF vectors with cosine similarity matched against 5 fixed retirement intents.",
+      "Similarity search identifies the closest intent, then maps it to a deterministic message template.",
     tags: [
       { label: "Deterministic", color: "bg-gray-100 text-gray-600 border-gray-300" },
       { label: "Low latency", color: "bg-green-50 text-green-700 border-green-300" },
@@ -29,7 +29,7 @@ const ENGINE_DATA: Record<ChatbotType, EngineData> = {
   hybrid: {
     name: "Hybrid (Traditional + GenAI) Chatbot",
     description:
-      "Embedding classifier routes simple intents to templates; complex intents to LLM-generated answers.",
+      "Similarity search identifies the intent. Simple intents map to a message template; complex intents trigger a RAG response.",
     tags: [
       { label: "Multi-language", color: "bg-blue-50 text-blue-700 border-blue-300" },
       { label: "Multi-intent", color: "bg-purple-50 text-purple-700 border-purple-300" },
@@ -44,7 +44,7 @@ const ENGINE_DATA: Record<ChatbotType, EngineData> = {
   rag: {
     name: "Full GenAI Chatbot",
     description:
-      "LLM with retirement knowledge base delivering free-form answers scoped to retirement topics.",
+      "Similarity search identifies the intent, then always triggers a RAG response from the retirement knowledge base.",
     tags: [
       { label: "Knowledge-grounded", color: "bg-red-50 text-ocbc-red border-red-300" },
       { label: "RAG-style", color: "bg-orange-50 text-orange-700 border-orange-300" },
