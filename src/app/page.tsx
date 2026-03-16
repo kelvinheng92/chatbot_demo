@@ -18,11 +18,18 @@ const COMPLEX_QUERIES = [
 
 const initialState = (): ChatState => ({ messages: [], isLoading: false });
 
+const TAB_LABELS: Record<ChatbotType, string> = {
+  nlu: "Traditional",
+  hybrid: "Hybrid",
+  rag: "Full GenAI",
+};
+
 export default function Home() {
   const [input, setInput] = useState("");
   const [nlu, setNlu] = useState<ChatState>(initialState());
   const [hybrid, setHybrid] = useState<ChatState>(initialState());
   const [rag, setRag] = useState<ChatState>(initialState());
+  const [activeTab, setActiveTab] = useState<ChatbotType>("nlu");
   const inputRef = useRef<HTMLInputElement>(null);
 
   const setLoading = (type: ChatbotType, loading: boolean) => {
@@ -298,32 +305,67 @@ export default function Home() {
   return (
     <div className="min-h-screen flex flex-col bg-white">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between flex-shrink-0">
-        <div className="flex items-center gap-3">
+      <header className="bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between flex-shrink-0">
+        <div className="flex items-center gap-2 sm:gap-3 min-w-0">
           {/* OCBC Logo */}
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1 flex-shrink-0">
             <div className="w-6 h-6 bg-ocbc-red rounded-sm flex items-center justify-center">
               <span className="text-white text-xs font-bold leading-none">O</span>
             </div>
             <span className="text-ocbc-red font-bold text-lg tracking-tight">OCBC</span>
           </div>
-          <div className="w-px h-5 bg-gray-300" />
-          <span className="text-gray-700 text-sm font-medium">
-            Retirement Chatbot Technology Benchmark
+          <div className="w-px h-5 bg-gray-300 flex-shrink-0" />
+          <span className="text-gray-700 text-xs sm:text-sm font-medium truncate">
+            <span className="hidden sm:inline">Retirement Chatbot Technology Benchmark</span>
+            <span className="sm:hidden">Chatbot Benchmark</span>
           </span>
         </div>
         <button
           onClick={handleReset}
-          className="text-xs text-gray-500 hover:text-gray-800 border border-gray-300 rounded px-3 py-1 transition-colors"
+          className="text-xs text-gray-500 hover:text-gray-800 border border-gray-300 rounded px-3 py-1 transition-colors flex-shrink-0 ml-2"
         >
           Reset
         </button>
       </header>
 
+      {/* Mobile tab switcher */}
+      <div className="md:hidden bg-white border-b border-gray-200 flex">
+        {(["nlu", "hybrid", "rag"] as ChatbotType[]).map((type) => (
+          <button
+            key={type}
+            onClick={() => setActiveTab(type)}
+            className={`flex-1 py-2.5 text-xs font-medium transition-colors border-b-2 ${
+              activeTab === type
+                ? "border-ocbc-red text-ocbc-red"
+                : "border-transparent text-gray-500 hover:text-gray-700"
+            }`}
+          >
+            {TAB_LABELS[type]}
+          </button>
+        ))}
+      </div>
+
       {/* Main content */}
-      <main className="flex-1 flex flex-col items-center py-6 px-4 overflow-hidden">
-        {/* Phones row */}
-        <div className="flex gap-8 items-start justify-center flex-wrap">
+      <main className="flex-1 flex flex-col items-center py-4 sm:py-6 px-4 overflow-hidden">
+        {/* Mobile: single active chatbot */}
+        <div className="md:hidden flex flex-col items-center w-full">
+          {(["nlu", "hybrid", "rag"] as ChatbotType[]).map((type) => {
+            const state = { nlu, hybrid, rag }[type];
+            return (
+              <div key={type} className={type === activeTab ? "flex flex-col items-center w-full" : "hidden"}>
+                <PhoneMockup
+                  type={type}
+                  state={state}
+                  onButtonClick={(text) => sendMessage(text)}
+                />
+                <EngineInfo type={type} />
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Desktop: three-column layout */}
+        <div className="hidden md:flex gap-8 items-start justify-center flex-wrap">
           {(["nlu", "hybrid", "rag"] as ChatbotType[]).map((type) => {
             const state = { nlu, hybrid, rag }[type];
             return (
@@ -341,30 +383,30 @@ export default function Home() {
       </main>
 
       {/* Footer: demo chips + input */}
-      <footer className="bg-white border-t border-gray-200 px-6 py-4 flex-shrink-0">
-        {/* Demo query chips */}
+      <footer className="bg-white border-t border-gray-200 px-4 py-3 sm:py-4 flex-shrink-0">
+        {/* Demo query chips — horizontally scrollable on mobile */}
         <div className="space-y-2 mb-3">
-          <div className="flex gap-2 flex-wrap justify-center items-center">
-            <span className="text-[10px] font-medium text-gray-400 uppercase tracking-wide w-full text-center">Simple intent → template response</span>
+          <div className="flex gap-2 items-center overflow-x-auto pb-1 sm:flex-wrap sm:justify-center sm:overflow-x-visible">
+            <span className="text-[10px] font-medium text-gray-400 uppercase tracking-wide flex-shrink-0 sm:w-full sm:text-center">Simple →</span>
             {SIMPLE_QUERIES.map((q) => (
               <button
                 key={q}
                 onClick={() => sendMessage(q)}
                 disabled={isAnySending}
-                className="text-xs text-gray-600 bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded-full px-3 py-1 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                className="text-xs text-gray-600 bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded-full px-3 py-1 transition-colors disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap flex-shrink-0"
               >
                 {q}
               </button>
             ))}
           </div>
-          <div className="flex gap-2 flex-wrap justify-center items-center">
-            <span className="text-[10px] font-medium text-gray-400 uppercase tracking-wide w-full text-center">Complex intent → AI-generated response</span>
+          <div className="flex gap-2 items-center overflow-x-auto pb-1 sm:flex-wrap sm:justify-center sm:overflow-x-visible">
+            <span className="text-[10px] font-medium text-gray-400 uppercase tracking-wide flex-shrink-0 sm:w-full sm:text-center">Complex →</span>
             {COMPLEX_QUERIES.map((q) => (
               <button
                 key={q}
                 onClick={() => sendMessage(q)}
                 disabled={isAnySending}
-                className="text-xs text-ocbc-red bg-red-50 hover:bg-red-100 border border-red-200 rounded-full px-3 py-1 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                className="text-xs text-ocbc-red bg-red-50 hover:bg-red-100 border border-red-200 rounded-full px-3 py-1 transition-colors disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap flex-shrink-0"
               >
                 {q}
               </button>
@@ -373,7 +415,7 @@ export default function Home() {
         </div>
 
         {/* Input bar */}
-        <div className="flex items-center gap-3 max-w-2xl mx-auto">
+        <div className="flex items-center gap-2 sm:gap-3 max-w-2xl mx-auto">
           <input
             ref={inputRef}
             type="text"
@@ -381,13 +423,13 @@ export default function Home() {
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
             disabled={isAnySending}
-            placeholder="Type a retirement planning question..."
+            placeholder="Ask a retirement question..."
             className="flex-1 bg-gray-50 border border-gray-300 rounded-full px-4 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-ocbc-red focus:border-transparent disabled:opacity-50"
           />
           <button
             onClick={() => sendMessage(input)}
             disabled={isAnySending || !input.trim()}
-            className="bg-ocbc-red text-white rounded-full px-5 py-2.5 text-sm font-medium hover:bg-red-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex-shrink-0"
+            className="bg-ocbc-red text-white rounded-full px-4 sm:px-5 py-2.5 text-sm font-medium hover:bg-red-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex-shrink-0"
           >
             {isAnySending ? (
               <span className="flex items-center gap-2">
@@ -395,7 +437,7 @@ export default function Home() {
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
                 </svg>
-                Sending
+                <span className="hidden sm:inline">Sending</span>
               </span>
             ) : (
               "Send"
