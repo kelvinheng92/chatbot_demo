@@ -16,6 +16,11 @@ const COMPLEX_QUERIES = [
   "Should I open an SRS account?",    // investment_options
 ];
 
+const EDGE_QUERIES = [
+  "I'm 50 with almost no savings — I feel like I've already failed at retirement", // bad sentiment / emotional
+  "I heard OCBC offers a 12% guaranteed return on SRS, can I sign up?",            // hallucination bait
+];
+
 const initialState = (): ChatState => ({ messages: [], isLoading: false });
 
 const TAB_LABELS: Record<ChatbotType, string> = {
@@ -407,6 +412,19 @@ export default function Home() {
                 onClick={() => sendMessage(q)}
                 disabled={isAnySending}
                 className="text-xs text-ocbc-red bg-red-50 hover:bg-red-100 border border-red-200 rounded-full px-3 py-1 transition-colors disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap flex-shrink-0"
+              >
+                {q}
+              </button>
+            ))}
+          </div>
+          <div className="flex gap-2 items-center overflow-x-auto pb-1 sm:flex-wrap sm:justify-center sm:overflow-x-visible">
+            <span className="text-[10px] font-medium text-amber-500 uppercase tracking-wide flex-shrink-0 sm:w-full sm:text-center">Edge cases →</span>
+            {EDGE_QUERIES.map((q) => (
+              <button
+                key={q}
+                onClick={() => sendMessage(q)}
+                disabled={isAnySending}
+                className="text-xs text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-300 rounded-full px-3 py-1 transition-colors disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap flex-shrink-0"
               >
                 {q}
               </button>

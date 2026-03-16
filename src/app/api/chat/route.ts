@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { getEmbeddingResponse, classifyWithEmbedding } from "@/lib/embedding-engine";
-import { OUT_OF_SCOPE_INTENT } from "@/lib/intents";
 import { RAG_SYSTEM_PROMPT } from "@/lib/knowledge-base";
 import type { ChatRequest, ChatResponse } from "@/types";
 
@@ -25,19 +24,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ ...result, latency: Date.now() - start });
     }
 
-    // RAG: classify first, then stream
+    // RAG: always stream via LLM — even for out-of-scope queries
+    // The system prompt instructs the model to redirect politely and stay on topic
     if (type === "rag") {
       const classification = await classifyWithEmbedding(message);
-      if (classification.outOfScope) {
-        return NextResponse.json({
-          text: OUT_OF_SCOPE_INTENT.templateResponse.text,
-          buttons: OUT_OF_SCOPE_INTENT.templateResponse.buttons,
-          intent: OUT_OF_SCOPE_INTENT.name,
-          outOfScope: true,
-          latency: Date.now() - start,
-        } as ChatResponse);
-      }
-      return getRAGStreamingResponse(message, history, start, classification.intent?.name ?? null);
+      const intentName = classification.outOfScope ? null : (classification.intent?.name ?? null);
+      return getRAGStreamingResponse(message, history, start, intentName);
     }
   } catch (err) {
     console.error(`[${type}] error:`, err);
