@@ -16,9 +16,15 @@ const COMPLEX_QUERIES = [
   "Should I open an SRS account?",    // investment_options
 ];
 
-const EDGE_QUERIES = [
-  "I'm 50 with almost no savings — I feel like I've already failed at retirement", // bad sentiment / emotional
-  "I heard OCBC offers a 12% guaranteed return on SRS, can I sign up?",            // hallucination bait
+// EC1: Maps to a simple intent → Hybrid returns safe template (no hallucination)
+//       Full GenAI LLM invents OCBC-specific product details not in the knowledge base
+const EDGE_QUERIES_1 = [
+  "Does OCBC offer a special CPF top-up bonus for retirement savers?",
+];
+
+// EC2: Maps to a complex intent → Hybrid also calls LLM → both models fabricate specific stats/products
+const EDGE_QUERIES_2 = [
+  "What annual return has OCBC RoboInvest delivered for retirement portfolios since launch?",
 ];
 
 const initialState = (): ChatState => ({ messages: [], isLoading: false });
@@ -418,13 +424,26 @@ export default function Home() {
             ))}
           </div>
           <div className="flex gap-2 items-center overflow-x-auto pb-1 sm:flex-wrap sm:justify-center sm:overflow-x-visible">
-            <span className="text-[10px] font-medium text-amber-500 uppercase tracking-wide flex-shrink-0 sm:w-full sm:text-center">Edge cases →</span>
-            {EDGE_QUERIES.map((q) => (
+            <span className="text-[10px] font-medium text-amber-600 uppercase tracking-wide flex-shrink-0 sm:w-full sm:text-center">Edge case: Hybrid ✓ · GenAI hallucinates ✗</span>
+            {EDGE_QUERIES_1.map((q) => (
               <button
                 key={q}
                 onClick={() => sendMessage(q)}
                 disabled={isAnySending}
-                className="text-xs text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-300 rounded-full px-3 py-1 transition-colors disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap flex-shrink-0"
+                className="text-xs text-amber-800 bg-amber-50 hover:bg-amber-100 border border-amber-400 rounded-full px-3 py-1 transition-colors disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap flex-shrink-0"
+              >
+                {q}
+              </button>
+            ))}
+          </div>
+          <div className="flex gap-2 items-center overflow-x-auto pb-1 sm:flex-wrap sm:justify-center sm:overflow-x-visible">
+            <span className="text-[10px] font-medium text-rose-600 uppercase tracking-wide flex-shrink-0 sm:w-full sm:text-center">Edge case: Both Hybrid & GenAI hallucinate ✗</span>
+            {EDGE_QUERIES_2.map((q) => (
+              <button
+                key={q}
+                onClick={() => sendMessage(q)}
+                disabled={isAnySending}
+                className="text-xs text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-300 rounded-full px-3 py-1 transition-colors disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap flex-shrink-0"
               >
                 {q}
               </button>
