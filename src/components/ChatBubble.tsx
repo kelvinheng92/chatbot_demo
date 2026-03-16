@@ -51,7 +51,7 @@ export function ChatBubble({ message, onButtonClick }: ChatBubbleProps) {
   if (message.role === "user") {
     return (
       <div className="flex justify-end mb-2">
-        <span className="bg-ocbc-red text-white text-xs font-medium rounded-full px-3 py-1.5 max-w-[80%]">
+        <span className="bg-ocbc-red text-white text-xs leading-relaxed rounded-2xl rounded-tr-sm px-3 py-2 max-w-[80%] inline-block">
           {message.content}
         </span>
       </div>
