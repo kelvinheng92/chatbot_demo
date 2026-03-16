@@ -321,8 +321,8 @@ export default function Home() {
           </div>
           <div className="w-px h-5 bg-gray-300 flex-shrink-0" />
           <span className="text-gray-700 text-xs sm:text-sm font-medium truncate">
-            <span className="hidden sm:inline">Retirement Chatbot Technology Benchmark</span>
-            <span className="sm:hidden">Chatbot Benchmark</span>
+            <span className="hidden sm:inline">CFS WoW Retirement Chatbot Comparison</span>
+            <span className="sm:hidden">Chatbot Comparison</span>
           </span>
         </div>
         <button
