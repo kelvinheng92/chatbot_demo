@@ -12,7 +12,7 @@ const ENGINE_DATA: Record<ChatbotType, EngineData> = {
   nlu: {
     name: "Traditional Chatbot",
     description:
-      "Sentence embedding model (all-MiniLM-L6-v2) with cosine similarity across 5 fixed retirement intents.",
+      "TF-IDF vectors with cosine similarity matched against 5 fixed retirement intents.",
     tags: [
       { label: "Deterministic", color: "bg-gray-100 text-gray-600 border-gray-300" },
       { label: "Low latency", color: "bg-green-50 text-green-700 border-green-300" },

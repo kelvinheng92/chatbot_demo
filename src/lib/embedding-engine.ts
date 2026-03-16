@@ -1,28 +1,58 @@
-import { pipeline, env } from "@huggingface/transformers";
 import { RETIREMENT_INTENTS, OUT_OF_SCOPE_INTENT } from "./intents";
 import type { ChatResponse } from "@/types";
 
-// Run in Node.js — download models from HuggingFace Hub, cache to disk
-env.allowLocalModels = false;
+// ---------------------------------------------------------------------------
+// Lightweight TF-IDF cosine similarity — no native binaries, Vercel-compatible
+// ---------------------------------------------------------------------------
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-let extractor: any = null;
-let intentEmbeddings: number[][] | null = null;
+const STOP_WORDS = new Set([
+  "a","an","the","is","it","in","on","at","to","for","of","and","or","but",
+  "i","my","me","we","you","your","do","be","am","are","was","were","have",
+  "has","had","will","can","could","would","should","may","might","what",
+  "how","when","where","which","that","this","there","if","about","with",
+]);
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-async function getExtractor(): Promise<any> {
-  if (!extractor) {
-    extractor = await pipeline("feature-extraction", "Xenova/all-MiniLM-L6-v2", {
-      dtype: "q8",
-    });
-  }
-  return extractor;
+function tokenize(text: string): string[] {
+  return text
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, " ")
+    .split(/\s+/)
+    .filter((w) => w.length > 1 && !STOP_WORDS.has(w));
 }
 
-async function embed(text: string): Promise<number[]> {
-  const ext = await getExtractor();
-  const output = await ext(text, { pooling: "mean", normalize: true });
-  return Array.from(output.data as Float32Array);
+function termFreq(tokens: string[]): Map<string, number> {
+  const tf = new Map<string, number>();
+  for (const t of tokens) tf.set(t, (tf.get(t) ?? 0) + 1);
+  const total = tokens.length || 1;
+  tf.forEach((v, k) => tf.set(k, v / total));
+  return tf;
+}
+
+// Build global vocabulary + IDF weights from all intent documents
+const intentDocs: string[][] = RETIREMENT_INTENTS.map((intent) =>
+  tokenize(
+    [intent.name, intent.description, ...intent.trainingExamples, ...intent.keywords].join(" ")
+  )
+);
+
+const vocab: string[] = Array.from(new Set(intentDocs.flat()));
+const vocabIndex = new Map(vocab.map((w, i) => [w, i]));
+
+function idf(term: string): number {
+  const docsWithTerm = intentDocs.filter((d) => d.includes(term)).length;
+  return Math.log((intentDocs.length + 1) / (docsWithTerm + 1)) + 1;
+}
+const idfCache = new Map(vocab.map((w) => [w, idf(w)]));
+
+function tfidfVector(text: string): number[] {
+  const tokens = tokenize(text);
+  const tf = termFreq(tokens);
+  const vec = new Array(vocab.length).fill(0);
+  tf.forEach((tfVal, term) => {
+    const idx = vocabIndex.get(term);
+    if (idx !== undefined) vec[idx] = tfVal * (idfCache.get(term) ?? 1);
+  });
+  return vec;
 }
 
 function cosine(a: number[], b: number[]): number {
@@ -35,28 +65,30 @@ function cosine(a: number[], b: number[]): number {
   return magA === 0 || magB === 0 ? 0 : dot / (Math.sqrt(magA) * Math.sqrt(magB));
 }
 
-// Build one representative embedding per intent by combining its name,
-// description and first 5 training examples. Cached after first build.
-async function getIntentEmbeddings(): Promise<number[][]> {
-  if (!intentEmbeddings) {
-    intentEmbeddings = await Promise.all(
-      RETIREMENT_INTENTS.map((intent) => {
-        const text = [
-          intent.name,
-          intent.description,
-          ...intent.trainingExamples.slice(0, 5),
-        ].join(". ");
-        return embed(text);
-      })
-    );
-  }
-  return intentEmbeddings;
-}
+// Pre-compute intent vectors once at module load (synchronous, no I/O)
+const intentVectors: number[][] = intentDocs.map((_, i) =>
+  tfidfVector(
+    [
+      RETIREMENT_INTENTS[i].name,
+      RETIREMENT_INTENTS[i].description,
+      ...RETIREMENT_INTENTS[i].trainingExamples,
+      ...RETIREMENT_INTENTS[i].keywords,
+    ].join(" ")
+  )
+);
 
-// Pre-warm: download model and pre-compute intent embeddings in the background
-export async function warmUp(): Promise<void> {
-  await getIntentEmbeddings();
-}
+// No-op warmUp kept for API compatibility
+export async function warmUp(): Promise<void> {}
+
+// ---------------------------------------------------------------------------
+// Thresholds
+// ---------------------------------------------------------------------------
+const CONFIDENT_THRESHOLD = 0.15;
+const WEAK_THRESHOLD = 0.05;
+
+// ---------------------------------------------------------------------------
+// Exports
+// ---------------------------------------------------------------------------
 
 export interface ClassifyResult {
   intent: (typeof RETIREMENT_INTENTS)[number] | typeof OUT_OF_SCOPE_INTENT;
@@ -64,58 +96,34 @@ export interface ClassifyResult {
   outOfScope: boolean;
 }
 
-/** Low-level classifier — returns the matched Intent object (or OUT_OF_SCOPE_INTENT). Used by Hybrid and Full GenAI. */
 export async function classifyWithEmbedding(message: string): Promise<ClassifyResult> {
-  const [queryVec, allIntentVecs] = await Promise.all([
-    embed(message),
-    getIntentEmbeddings(),
-  ]);
+  const queryVec = tfidfVector(message);
 
   let bestScore = 0;
   let bestIndex = 0;
-
-  allIntentVecs.forEach((vec, i) => {
+  intentVectors.forEach((vec, i) => {
     const score = cosine(queryVec, vec);
-    if (score > bestScore) {
-      bestScore = score;
-      bestIndex = i;
-    }
+    if (score > bestScore) { bestScore = score; bestIndex = i; }
   });
 
   if (bestScore < WEAK_THRESHOLD) {
     return { intent: OUT_OF_SCOPE_INTENT, score: bestScore, outOfScope: true };
   }
-
-  return {
-    intent: RETIREMENT_INTENTS[bestIndex],
-    score: bestScore,
-    outOfScope: false,
-  };
+  return { intent: RETIREMENT_INTENTS[bestIndex], score: bestScore, outOfScope: false };
 }
 
-const CONFIDENT_THRESHOLD = 0.45; // above → clear retirement match
-const WEAK_THRESHOLD = 0.25;      // above → show closest intent (demonstrates misclassification)
-
 export async function getEmbeddingResponse(message: string): Promise<ChatResponse> {
-  const [queryVec, allIntentVecs] = await Promise.all([
-    embed(message),
-    getIntentEmbeddings(),
-  ]);
+  const queryVec = tfidfVector(message);
 
   let bestScore = 0;
   let bestIndex = 0;
-
-  allIntentVecs.forEach((vec, i) => {
+  intentVectors.forEach((vec, i) => {
     const score = cosine(queryVec, vec);
-    if (score > bestScore) {
-      bestScore = score;
-      bestIndex = i;
-    }
+    if (score > bestScore) { bestScore = score; bestIndex = i; }
   });
 
   const bestIntent = RETIREMENT_INTENTS[bestIndex];
 
-  // Very low similarity — query is unrelated to retirement domain
   if (bestScore < WEAK_THRESHOLD) {
     return {
       text: OUT_OF_SCOPE_INTENT.templateResponse.text,
@@ -126,7 +134,6 @@ export async function getEmbeddingResponse(message: string): Promise<ChatRespons
     };
   }
 
-  // Below confident threshold — shows nearest intent but likely wrong (key demo moment)
   if (bestScore < CONFIDENT_THRESHOLD) {
     return {
       text: "Do you mean you would like to perform the below mentioned actions?",
@@ -137,7 +144,6 @@ export async function getEmbeddingResponse(message: string): Promise<ChatRespons
     };
   }
 
-  // Clear match
   return {
     text: bestIntent.templateResponse.text,
     intent: bestIntent.name,
