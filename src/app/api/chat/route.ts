@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { getEmbeddingResponse, classifyWithEmbedding } from "@/lib/embedding-engine";
+import { OUT_OF_SCOPE_INTENT } from "@/lib/intents";
 import { RAG_SYSTEM_PROMPT } from "@/lib/knowledge-base";
 import type { ChatRequest, ChatResponse } from "@/types";
 
