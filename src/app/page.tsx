@@ -316,28 +316,45 @@ export default function Home() {
   return (
     <div className="min-h-screen flex flex-col bg-white">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between flex-shrink-0">
+      <header className="bg-white border-b border-gray-200 px-4 sm:px-6 py-3 flex items-center justify-between flex-shrink-0">
         <div className="flex items-center gap-2 sm:gap-3 min-w-0">
           {/* OCBC Logo */}
-          <div className="flex items-center gap-1 flex-shrink-0">
-            <div className="w-6 h-6 bg-ocbc-red rounded-sm flex items-center justify-center">
-              <span className="text-white text-xs font-bold leading-none">O</span>
+          <div className="flex items-center gap-1.5 flex-shrink-0">
+            <div className="w-7 h-7 bg-ocbc-red rounded-full flex items-center justify-center">
+              <span className="text-white text-[10px] font-bold leading-none tracking-tight">OCBC</span>
             </div>
             <span className="text-ocbc-red font-bold text-lg tracking-tight">OCBC</span>
           </div>
           <div className="w-px h-5 bg-gray-300 flex-shrink-0" />
-          <span className="text-gray-700 text-xs sm:text-sm font-medium truncate">
-            <span className="hidden sm:inline">CFS WoW Retirement Chatbot Comparison</span>
-            <span className="sm:hidden">Chatbot Comparison</span>
-          </span>
+          <span className="text-gray-700 text-sm font-medium truncate">Smart Search</span>
         </div>
-        <button
-          onClick={handleReset}
-          className="text-xs text-gray-500 hover:text-gray-800 border border-gray-300 rounded px-3 py-1 transition-colors flex-shrink-0 ml-2"
-        >
-          Reset
-        </button>
+        <div className="flex items-center gap-2 flex-shrink-0 ml-2">
+          <button
+            onClick={handleReset}
+            className="text-xs text-gray-600 hover:text-gray-800 border border-gray-300 rounded-full px-3 py-1.5 transition-colors"
+          >
+            Reset chat
+          </button>
+          <button className="text-xs text-ocbc-red hover:bg-red-50 border border-ocbc-red rounded-full px-3 py-1.5 transition-colors flex items-center gap-1.5">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+            </svg>
+            Sign out
+          </button>
+        </div>
       </header>
+
+      {/* Red banner */}
+      <div className="bg-ocbc-red px-4 sm:px-6 py-4 flex items-center justify-between flex-shrink-0">
+        <div>
+          <h1 className="text-white font-bold text-lg leading-tight">Retirement Smart Search</h1>
+          <p className="text-red-100 text-sm mt-0.5">Powered by TF-IDF · Hybrid GenAI · RAG — 3 engine comparison</p>
+        </div>
+        <div className="flex items-center gap-2 bg-white/20 rounded-full px-3 py-1.5">
+          <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+          <span className="text-white text-xs font-medium">Live</span>
+        </div>
+      </div>
 
       {/* Mobile tab switcher */}
       <div className="md:hidden bg-white border-b border-gray-200 flex">
