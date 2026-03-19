@@ -36,20 +36,11 @@ export function PhoneMockup({ type, state, onButtonClick }: PhoneMockupProps) {
   return (
     <div className="flex flex-col items-center">
       {/* Phone frame */}
-      <div className="relative w-[240px] h-[560px] bg-black rounded-[40px] p-[3px] shadow-2xl">
+      <div className="relative w-[240px] h-[480px] bg-black rounded-[40px] p-[3px] shadow-2xl">
         <div className="w-full h-full bg-[#F2F2F7] rounded-[38px] overflow-hidden flex flex-col">
           {/* Dynamic island */}
           <div className="flex justify-center pt-3 pb-1 flex-shrink-0">
             <div className="w-20 h-5 bg-black rounded-full" />
-          </div>
-
-          {/* Static chart — always visible, never scrolls */}
-          <div className="flex-shrink-0 px-2 pt-1 pb-1">
-            <img
-              src="/net-worth-chart.png"
-              alt="Projected Net Worth"
-              className="w-full rounded-lg border border-gray-200"
-            />
           </div>
 
           {/* Chat area */}
