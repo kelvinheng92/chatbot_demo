@@ -6,12 +6,12 @@ import { EngineInfo } from "@/components/EngineInfo";
 import type { ChatState, ChatbotType, ChatResponse, Message } from "@/types";
 
 const SIMPLE_QUERIES = [
-  "What is CPF Life and how much will I get?",    // cpf_inquiry
-  "Am I on track for retirement?",                // retirement_gap
-  "How does buying a home affect my retirement?", // life_events
+  "What is CPF Life and how much will I get?", // cpf_inquiry
+  "What is the SRS retirement age?",           // cpf_inquiry
 ];
 
 const COMPLEX_QUERIES = [
+  "Am I on track for retirement?",    // retirement_planning
   "When can I retire in Singapore?",  // retirement_planning
   "Should I open an SRS account?",    // investment_options
 ];

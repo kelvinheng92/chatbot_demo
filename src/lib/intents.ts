@@ -30,6 +30,7 @@ export const RETIREMENT_INTENTS: Intent[] = [
       "CPF retirement sum requirements",
       "difference between BRS FRS ERS",
       "how much is CPF Life payout",
+      "What is the SRS retirement age",
     ],
     templateResponse: {
       text: "I can help with your CPF queries. What would you like to know?",
@@ -60,6 +61,7 @@ export const RETIREMENT_INTENTS: Intent[] = [
       "retire early in Singapore",
       "how much to save for retirement",
       "retirement goal planning",
+      "am i on track for retirement",
     ],
     templateResponse: {
       text: "Let me help you plan your retirement. Here are key areas to explore:",
@@ -85,7 +87,6 @@ export const RETIREMENT_INTENTS: Intent[] = [
       "how to close my retirement gap",
       "I have a retirement shortfall",
       "how much more do I need to save",
-      "am I on track for retirement",
       "calculate my retirement deficit",
       "how to narrow the retirement gap",
       "afford to retire at 63",
@@ -141,7 +142,6 @@ export const RETIREMENT_INTENTS: Intent[] = [
     trainingExamples: [
       "planning to get married soon",
       "saving for my children university education",
-      "buying a house impact on retirement",
       "how do life events affect my retirement plan",
       "planning for family expenses and retirement",
       "dream home and retirement savings",
