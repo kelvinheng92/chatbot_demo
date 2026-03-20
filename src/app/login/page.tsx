@@ -35,10 +35,7 @@ export default function LoginPage() {
       <div className="w-full max-w-sm">
         {/* OCBC Logo area */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-ocbc-red mb-4">
-            <span className="text-white font-bold text-xl">O</span>
-          </div>
-          <h1 className="text-2xl font-bold text-gray-900">OCBC Chatbot Demo</h1>
+          <h1 className="text-2xl font-bold text-gray-900">OCBC WoW Retirement Chatbot Demo</h1>
           <p className="text-sm text-gray-500 mt-1">Sign in to continue</p>
         </div>
 
