@@ -19,6 +19,7 @@ export const RETIREMENT_INTENTS: Intent[] = [
       "cpf", "central", "provident", "fund", "ordinary", "special", "medisave",
       "oa", "sa", "ma", "ra", "contribution", "payout", "withdrawal", "topup",
       "interest", "rate", "retirement", "account", "life", "balance", "scheme",
+      "srs", "supplementary", "age",
     ],
     trainingExamples: [
       "how does CPF work",
@@ -31,6 +32,9 @@ export const RETIREMENT_INTENTS: Intent[] = [
       "difference between BRS FRS ERS",
       "how much is CPF Life payout",
       "What is the SRS retirement age",
+      "SRS withdrawal age",
+      "what age can I withdraw SRS",
+      "SRS retirement withdrawal rules",
     ],
     templateResponse: {
       text: "I can help with your CPF queries. What would you like to know?",
